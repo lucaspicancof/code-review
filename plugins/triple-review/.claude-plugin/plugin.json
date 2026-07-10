@@ -1,0 +1,9 @@
+{
+  "name": "triple-review",
+  "version": "1.0.0",
+  "description": "Revisão pré-build em paralelo (QA · Sênior · Gerente UX) com baseline/delta por branch, checklists determinísticos, retrospectiva automática e veredito orientado ao que mudou. Customização por projeto via overlay em docs/triple-review-tuning/customizacao.md.",
+  "author": {
+    "name": "Lucas Picanço",
+    "email": "lucaspf2001@gmail.com"
+  }
+}

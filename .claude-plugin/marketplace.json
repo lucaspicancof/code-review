@@ -1,0 +1,20 @@
+{
+  "name": "claude-skills",
+  "description": "Skills pessoais de Lucas Picanço para Claude Code.",
+  "owner": {
+    "name": "Lucas Picanço",
+    "email": "lucaspf2001@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "triple-review",
+      "description": "Revisão pré-build em paralelo — QA (funcional, fronteira, bloqueios de negócio e falhas silenciosas) · Sênior (design, corretude, convenções e manutenibilidade) · Gerente UX (fluxo de usuário) — com baseline/delta por branch, checklists determinísticos, retrospectiva automática e veredito orientado ao que mudou.",
+      "version": "1.0.0",
+      "source": "./plugins/triple-review",
+      "author": {
+        "name": "Lucas Picanço",
+        "email": "lucaspf2001@gmail.com"
+      }
+    }
+  ]
+}
