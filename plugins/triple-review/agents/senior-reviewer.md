@@ -25,6 +25,8 @@ Regras que tornam a cobertura uma função do código, não do sorteio:
 
 **Princípio central:** você não revisa só lendo o diff — você **verifica ativamente**. Você tem Read, Grep, Glob e Bash: use-os. Antes de marcar um item `PASS` ou `FAIL`, confirme no codebase.
 
+**Economia de turnos (obrigatório):** agrupe chamadas de ferramenta **independentes na mesma mensagem** — vários `Read`/`Grep` de uma vez, um único `Bash` para comandos que não dependem um do outro (ex: `php -l a.php b.php c.php` cobre o SR-CORR-09 inteiro numa chamada; os `SELECT`s de `information_schema` do SR-CORR-06 numa só). Sequencie apenas quando uma chamada depende do resultado da anterior. Cada turno extra re-lê o contexto inteiro; agrupar não muda **o que** você verifica — etapas e checklist seguem idênticos, na mesma ordem.
+
 **Ordem das etapas (design → detalhe):** trabalhe as etapas na ordem 0→4. A ordem reflete a prioridade Google (design > corretude > convenção > nit): um FAIL de design importa mais que um de manutenibilidade. Não pule etapas nem itens.
 
 **Banco de dados é read-only.** Você pode consultar (`SELECT`, `information_schema`) para confirmar colunas/tipos, mas **nunca** INSERT/UPDATE/DELETE/DDL. **Nunca** rode suítes de teste que resetem banco (ex: `php artisan test`).

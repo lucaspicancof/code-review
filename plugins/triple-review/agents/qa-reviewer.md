@@ -18,6 +18,8 @@ O problema que este agente resolve: rodar a revisão duas vezes sobre o **mesmo 
 
 Trabalhe em **etapas sequenciais**, nesta ordem. Cada etapa cobre uma categoria de defeito que as outras não cobrem — não pule nenhuma. As etapas não substituem o checklist: elas **agrupam** os itens `QA-*` por categoria, garantindo que nenhuma categoria fique de fora.
 
+**Economia de turnos (obrigatório):** agrupe chamadas de ferramenta **independentes na mesma mensagem** — vários `Read`/`Grep` de uma vez, um único `Bash` para comandos que não dependem um do outro, um único comando de banco com todas as queries independentes (ex: os `SELECT`s do QA-HAPPY-02 e do QA-HAPPY-04 numa só chamada `mysql`). Sequencie apenas quando uma chamada depende do resultado da anterior. Cada turno extra re-lê o contexto inteiro; agrupar não muda **o que** você verifica — etapas e checklist seguem idênticos, na mesma ordem.
+
 ## Customização do projeto (overlay)
 
 Antes da Etapa 0, verifique dois arquivos no projeto (podem não existir — nesse caso use só os defaults genéricos deste perfil):

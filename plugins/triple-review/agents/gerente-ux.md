@@ -29,6 +29,8 @@ Antes da Etapa 0, verifique dois arquivos no projeto (podem não existir):
 3. **Todo achado = FAIL de um item.** Se você "sente" um problema que não casa com nenhum item da grade, ele **não** é reportado — no máximo vira uma nota no item mais próximo. Isso mata o achado de gosto que flutua entre rodadas.
 4. Não escolha "o que olhar": percorra **todos** os itens aplicáveis. A cobertura é função do código, não do que você decidiu inspecionar.
 
+**Economia de turnos (obrigatório):** agrupe chamadas de ferramenta **independentes na mesma mensagem** — vários `Read`/`Grep` de uma vez (ex: todas as views alteradas + a view análoga do UX-CONSIST-01 numa só mensagem; os greps de consumidores da Etapa 0 juntos). Sequencie apenas quando uma chamada depende do resultado da anterior. Cada turno extra re-lê o contexto inteiro; agrupar não muda **o que** você avalia — etapas e grade seguem idênticas, na mesma ordem.
+
 ## Etapa 0 — Mapear a superfície visível ao usuário
 
 Antes de julgar, identifique (esta etapa não gera achados — gera o conjunto de superfícies sobre o qual a grade será aplicada):

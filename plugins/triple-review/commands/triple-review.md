@@ -182,7 +182,7 @@ Use os templates abaixo **copiando o texto e substituindo os placeholders `{STAC
 > **Memória do revisor (`VEREDITOS_ANTERIORES`) — obrigatório quando `PRIMEIRA_REVISAO=false`:**
 > O baseline dá memória ao **orquestrador**, mas sem este bloco os **revisores continuam amnésicos**: cada agente re-deriva os vereditos do zero, e nada ancora a resposta desta rodada na da anterior. O resultado é que o checklist fechado torna determinística a **cobertura** (quais perguntas são feitas), mas **não o veredito** (que resposta cada pergunta recebe) — itens que exigem raciocínio multi-hop viram `PASS` numa rodada e `FAIL` na outra, em código que ninguém tocou.
 >
-> Antes de disparar, monte para cada dimensão o conjunto `VEREDITOS_ANTERIORES` = os itens do `baseline.checklist` daquela dimensão **cujo código não foi tocado** (teste de toque do Passo 6d, aplicado ao arquivo que o item cobre; na dúvida sobre o alvo do item, inclua-o). Injete esse bloco no prompt do agente e exija a regra:
+> Antes de disparar, monte para cada dimensão o conjunto `VEREDITOS_ANTERIORES` = os itens do `baseline.checklist` daquela dimensão **cujo código não foi tocado** (teste de toque do Passo 6d, aplicado ao arquivo que o item cobre; na dúvida sobre o alvo do item, inclua-o). O veredito **e a evidência** vêm do próprio valor persistido no baseline (formato `"PASS — evidência"` — ver Passo 7); baseline antigo que só guardou o veredito → injete a linha sem a parte da evidência, nunca invente uma. Injete esse bloco no prompt do agente e exija a regra:
 >
 > ```
 > ## Vereditos anteriores (código NÃO alterado desde a última revisão)
@@ -372,6 +372,8 @@ onde `<escopo>` = símbolo que contém o achado (método/classe) quando determin
 
 Compare `baseline.checklist` com os checklists desta rodada. Para itens cujo código **não** foi tocado (teste de toque de 6d) mas cujo veredito **mudou** (`PASS`↔`FAIL`), emita `⚠️ cobertura instável no item <ID>` no relatório. Isso expõe exatamente a amostragem que causa a não-convergência.
 
+> **Normalização na comparação:** o valor do checklist pode estar no formato antigo (`"PASS"`) ou no atual (`"PASS — evidência"`) — compare **apenas o veredito** (token antes de ` — `). Chaves de dimensão casam case-insensitive (`qa` ≡ `QA`, `senior` ≡ `Senior`); a grafia canônica ao **gravar** é minúscula (Passo 7). Evidência diferente com o mesmo veredito **não** é cobertura instável.
+
 **Exceção — item alterado pela Retrospectiva:** antes de acusar instabilidade, confira `docs/triple-review-tuning/CHANGELOG.md`. Se o item foi reescrito/criado pela Retrospectiva (Passo 8) **depois** do `reviewed_at` do baseline, a mudança de veredito é esperada (o item mudou, não a amostragem) — reporte como `🔧 item <ID> atualizado na retrospectiva de <data> — reavaliado sob o novo procedimento`, não como cobertura instável.
 
 ### 6f. Regra de veredito (determinística — aplique nesta ordem)
@@ -473,7 +475,7 @@ Após emitir o relatório (e **só** se o veredito não for REVISÃO NÃO REALIZ
 Grave em `BASELINE_FILE` (Passo 3) um JSON com:
 - `branch`, `reviewed_at` (ISO-8601 de agora), `review_state_sha` = `CUR_REVIEW_STATE_SHA` (Passo 3), `diff_base` = `BASE` (Passo 1);
 - `findings`: **todos** os achados desta rodada (após dedup e gate de confiança), cada um com `fingerprint`, `arquivo`, `linha`, `escopo`, `dimensao`, `item`, `severidade`, `tag`, `assinatura`;
-- `checklist`: para cada dimensão que respondeu, o mapa `{ "<item-ID>": "PASS|FAIL|N/A" }` completo.
+- `checklist`: para cada dimensão que respondeu, o mapa completo `{ "<item-ID>": "PASS|FAIL|N/A — <evidência de 1 linha>" }`. **Chaves de dimensão canônicas em minúsculas: `qa` / `senior` / `ux`.** A evidência persistida é o que alimenta o bloco `VEREDITOS_ANTERIORES` da próxima rodada (Passo 5) — sem ela os revisores recebem só o veredito, sem âncora. Ao **ler** um baseline antigo, aceite os dois formatos: valor só-veredito (`"PASS"`) e chaves de dimensão em outra caixa (`QA`/`Senior`) — case-insensitive.
 
 > **Grafia canônica do campo `tag` no JSON persistido** (a prosa do relatório usa acentos; o JSON, não — para não depender de encoding ao comparar entre rodadas): `NOVO` · `REGRESSAO` · `PRE_EXISTENTE` · `PERSISTENTE` · `RESOLVIDO` · `PRIMEIRA_REVISAO`. A identidade comparada entre rodadas é sempre o `fingerprint`, nunca a `tag`.
 
