@@ -1,6 +1,6 @@
 {
-  "name": "claude-skills",
-  "description": "Skills pessoais de Lucas Picanço para Claude Code.",
+  "name": "code-review",
+  "description": "Plugins de revisão de código para Claude Code.",
   "owner": {
     "name": "Lucas Picanço",
     "email": "lucaspf2001@gmail.com"

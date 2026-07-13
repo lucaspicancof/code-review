@@ -1,6 +1,6 @@
-# claude-skills
+# code-review
 
-Marketplace pessoal de plugins para [Claude Code](https://claude.com/claude-code).
+Plugins de revisão de código para [Claude Code](https://claude.com/claude-code).
 
 ## Plugins
 
@@ -19,8 +19,8 @@ O orquestrador consolida com deduplicação, gate de confiança e **baseline/del
 No Claude Code:
 
 ```
-/plugin marketplace add lucaspicancof/claude-skills
-/plugin install triple-review@claude-skills
+/plugin marketplace add lucaspicancof/code-review
+/plugin install triple-review@code-review
 ```
 
 Pronto — `/triple-review` fica disponível em qualquer projeto.
@@ -46,7 +46,7 @@ Sem overlay a skill funciona com defaults genéricos — mas rende muito mais co
 ## Atualização
 
 ```
-/plugin update triple-review@claude-skills
+/plugin update triple-review@code-review
 ```
 
 ## Contribuindo
