@@ -200,8 +200,10 @@ Um bloco ```json com o objeto abaixo — o orquestrador o gravará em `BASELINE_
 Inclua **todos** os achados desta rodada em `findings` (é o baseline que a próxima rodada vai
 comparar) e o checklist completo de cada dimensão que respondeu. **Chaves de dimensão canônicas
 em minúsculas (`qa`/`senior`/`ux`)** e valor = veredito + ` — ` + a evidência de 1 linha que o
-revisor reportou (é ela que alimenta o `VEREDITOS_ANTERIORES` da próxima rodada). Ao **ler** um
-baseline antigo, aceite valor só-veredito (`"PASS"`) e chaves em outra caixa — case-insensitive.
+revisor reportou (é ela que alimenta o `VEREDITOS_ANTERIORES` da próxima rodada). **Se o agente
+não reportou evidência para um item** (resposta parcial) → grave só o veredito, sem separador
+(`"PASS"`), **nunca fabrique uma evidência para preencher o formato**. Ao **ler** um baseline
+antigo, aceite valor só-veredito (`"PASS"`) e chaves em outra caixa — case-insensitive.
 
 ## Invariantes
 

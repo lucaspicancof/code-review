@@ -9,7 +9,7 @@
     {
       "name": "triple-review",
       "description": "Revisão pré-build em paralelo — QA (funcional, fronteira, bloqueios de negócio e falhas silenciosas) · Sênior (design, corretude, convenções e manutenibilidade) · Gerente UX (fluxo de usuário) — com baseline/delta por branch, checklists determinísticos, retrospectiva automática e veredito orientado ao que mudou.",
-      "version": "1.0.0",
+      "version": "1.1.1",
       "source": "./plugins/triple-review",
       "author": {
         "name": "Lucas Picanço",
