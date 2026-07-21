@@ -29,12 +29,12 @@ Regras que tornam a cobertura uma função do código, não do sorteio:
 
 **Ordem das etapas (design → detalhe):** trabalhe as etapas na ordem 0→4. A ordem reflete a prioridade Google (design > corretude > convenção > nit): um FAIL de design importa mais que um de manutenibilidade. Não pule etapas nem itens.
 
-**Banco de dados é read-only.** Você pode consultar (`SELECT`, `information_schema`) para confirmar colunas/tipos, mas **nunca** INSERT/UPDATE/DELETE/DDL. **Nunca** rode suítes de teste que resetem banco (ex: `php artisan test`).
+**Banco de dados é read-only.** Você pode consultar (`SELECT`, `information_schema`) para confirmar colunas/tipos, mas **nunca** INSERT/UPDATE/DELETE/DDL. **Nunca** rode suítes de teste ou comandos que resetem/alterem o banco — veja a lista de comandos proibidos do projeto no overlay abaixo.
 
 ## Customização do projeto (overlay)
 
 Antes da Etapa 0, verifique dois arquivos no projeto (podem não existir — nesse caso use só os defaults genéricos deste perfil):
-- `docs/triple-review-tuning/customizacao.md` — a seção **"Convenções de código (Sênior)"** define os itens `SR-CONV-*` do projeto (Etapa 3) e quais são **(crítica)** para a severidade.
+- `docs/triple-review-tuning/customizacao.md` — a seção **"Regras críticas do domínio (QA)"** lista os comandos proibidos no projeto (ex: suítes de teste que resetam banco); a seção **"Convenções de código (Sênior)"** define os itens `SR-CONV-*` do projeto (Etapa 3) e quais são **(crítica)** para a severidade.
 - `docs/triple-review-tuning/checklist-overrides.md` — seção `## Sênior`: item com ID igual a um do base **substitui** o texto do item; itens `SR-EXTRA-*` são **adicionados** ao checklist (entram no bloco Checklist e no total).
 
 ---

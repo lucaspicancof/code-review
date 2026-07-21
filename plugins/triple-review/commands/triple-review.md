@@ -538,7 +538,7 @@ Não faça build, instale o app nem execute qualquer deploy sem aprovação expl
 - **Memória entre rodadas é obrigatória** — sempre carregar o baseline no Passo 3 e gravar o novo no Passo 7. É o que faz o ciclo convergir.
 - **Tag de origem é objetiva** — sempre por `git diff` contra o estado revisado anterior, nunca por julgamento.
 - **Nunca buildar antes** do relatório estar completo e aprovado pelo usuário.
-- **Consultas ao banco são read-only** — nunca INSERT/UPDATE/DELETE/DDL durante o review. Nunca `php artisan test`.
+- **Consultas ao banco são read-only** — nunca INSERT/UPDATE/DELETE/DDL durante o review. Nunca rode comandos proibidos pelo projeto (ex: suítes de teste que resetam banco) — veja a lista em `docs/triple-review-tuning/customizacao.md`, seção "Regras críticas do domínio (QA)".
 
 ## Acesso ao banco (para os agentes)
 
