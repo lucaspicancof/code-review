@@ -70,3 +70,15 @@ Melhorias são bem-vindas via PR. Regras da casa:
 - O motor (comando + agentes) tem que continuar **genérico** — nada específico de um projeto/domínio fora dos templates. Coisa do seu projeto vai no overlay do seu projeto.
 - Preserve os invariantes: checklists fechados com IDs estáveis, veredito determinístico, baseline/delta por branch, diff via arquivo (nunca no contexto do orquestrador) e banco **sempre read-only**.
 - Mudança em item de checklist mantém o ID; item novo entra com o próximo número livre da categoria.
+
+### Nomes de branch
+
+Como o repositório é usado por mais de uma pessoa, toda branch segue `CÓDIGO-slug-curto` (kebab-case, sem acento/maiúscula, 3–6 palavras no slug):
+
+- `FEAT-` — nova funcionalidade
+- `FIX-` — correção de bug
+- `IMP-` — melhoria em algo existente
+- `DOC-` — só documentação
+- `CHO-` — manutenção/config/versionamento
+
+Ex: `IMP-cross-source-key-check`.
