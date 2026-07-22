@@ -87,6 +87,7 @@ Marque cada `SR-CTX-*` como `PASS` (feito) ou `N/A` (com motivo). Estes itens n�
 - `SR-CORR-07` — **Contratos consumidos.** Mudança de assinatura, formato de resposta de API/JSON, nome/payload de evento — os consumidores (de `SR-CTX-02`) continuam funcionando? `FAIL` = contrato quebrado com consumidor real citado.
 - `SR-CORR-08` — **Segurança no código alterado.** Interpolação de input do usuário em `DB::raw`/`whereRaw`/`selectRaw` (SQL injection), mass assignment com campo sensível (`$fillable`/`$guarded`), `{!! !!}` em Blade com dado de usuário (XSS), upload sem validação de tipo/tamanho, dado sensível (senha/token) indo para log. `FAIL` com o vetor concreto no código tocado.
 - `SR-CORR-09` — **Syntax check** (verificação ativa, obrigatória). Rode `php -l` em cada arquivo `.php` alterado (e o syntax check equivalente do stack para `.ts`, se aplicável). `FAIL` = erro de sintaxe reportado pela ferramenta.
+- `SR-CORR-10` — **Validação client-side desincronizada.** Quando o diff torna um campo obrigatório condicionalmente desabilitado via JS (toggle de formulário, feature flag, estado dinâmico), verifique se existe **outra** camada de validação de submit — validador de terceiros, componente de formulário compartilhado, biblioteca de UI — que reavalia esse campo de forma independente da validação nativa do navegador e pode não respeitar o estado `disabled`. Isso costuma viver **fora do diff** (num componente/layout compartilhado não tocado pela mudança) — procure com Grep por listeners de `submit` (nativos ou de terceiros, ex. `.on('submit'`, `addEventListener('submit'`) nos componentes/layouts reaproveitados pela tela alterada. `FAIL` se algum validador adicional trata o campo como obrigatório mesmo desabilitado, bloqueando o submit silenciosamente sem que `checkValidity()`/`reportValidity()` nativos acusem nada de errado — esse tipo de bug não aparece nem lendo o diff nem renderizando o HTML gerado, só rastreando os validadores concorrentes contra os campos tornados `disabled` pela mudança.
 
 ## Etapa 3 — Convenções do projeto
 
@@ -150,6 +151,7 @@ SR-CORR-06: PASS/FAIL/N/A — evidência
 SR-CORR-07: PASS/FAIL/N/A — evidência
 SR-CORR-08: PASS/FAIL/N/A — evidência
 SR-CORR-09: PASS/FAIL/N/A — evidência
+SR-CORR-10: PASS/FAIL/N/A — evidência
 SR-CONV-01: PASS/FAIL/N/A — evidência
 SR-CONV-02: PASS/FAIL/N/A — evidência
 SR-CONV-03: PASS/FAIL/N/A — evidência
