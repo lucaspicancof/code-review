@@ -57,6 +57,40 @@ Se `{CMD_DIFF} --stat {PATHSPEC}` vier vazio, informe ao usuário e pare:
 - Ambos → concatene com ` + `
 - Nenhum → `STACK="Genérico (nenhum stack reconhecido nos arquivos alterados)"` e avise que os agentes usarão análise genérica
 
+**Detectar arquivos adjacentes (escritores irmãos, heurística barata — grep, sem custo de LLM):**
+
+> Por que este passo existe: a revisão é *por diff*, de propósito (é o que mantém o foco e o custo baixos). Mas isso tem um ponto cego estrutural — se o diff grava um campo de estado/status de um recurso que **outro** arquivo, nunca tocado por este diff, também grava a partir de um fluxo diferente, esse outro arquivo é estruturalmente invisível à revisão, mesmo que o defeito real esteja exatamente na interação entre os dois (ex.: dois services de domínios diferentes decidindo o status do mesmo registro sem se conhecer). Isso não é algo que um item de checklist resolve sozinho — o Sênior só consegue aplicar `SR-CTX-04`/`SR-CORR-12` se souber que esse arquivo irmão existe. Este passo entrega essa pista de graça, antes de qualquer agente rodar.
+
+Só quando `STACK` inclui `Laravel`:
+
+```bash
+# 1) Nas linhas adicionadas (+) do DIFF_FILE, extrai o nome do CAMPO/COLUNA atribuído
+#    quando o campo parece ser de estado/status (convenção Eloquent: atribuição de
+#    propriedade `->CAMPO = valor` ou array de `update`/`create`/`fill` `'CAMPO' => valor`).
+#    Usa o nome do campo, não o nome da classe/variável — a classe geralmente não aparece
+#    na mesma linha (`$registro->save()` não contém o nome do Model), mas o nome do campo
+#    sim. Ajuste os termos de campo ao vocabulário do projeto se o overlay declarar outros
+#    (ver "Customização para outros projetos" no fim deste arquivo).
+grep -oP "(?<=->)[A-Z][A-Z0-9_]*(?=\s*=[^=])|(?<=')[A-Z][A-Z0-9_]*(?='\s*=>)" {DIFF_FILE} \
+  | grep -iE 'status|situacao|situação' \
+  | sort -u > /tmp/triple-review-campos-status.txt
+
+# 2) Para cada campo, procura OUTROS arquivos (fora de LISTA_ARQUIVOS_TODOS) que também
+#    atribuem esse mesmo campo — são os escritores irmãos. Best-effort: falso negativo aqui
+#    só significa que o passo não ajuda nesta rodada, não trava nada.
+while read -r campo; do
+  grep -rlE "(->${campo}\s*=[^=]|'${campo}'\s*=>)" app/Services app/Http/Controllers 2>/dev/null
+done < /tmp/triple-review-campos-status.txt \
+  | grep -vFf <(printf '%s\n' "${LISTA_ARQUIVOS_TODOS}") \
+  | sort -u | head -5 > /tmp/triple-review-arquivos-adjacentes.txt
+```
+
+Se o resultado não for vazio → `ARQUIVOS_ADJACENTES` = o conteúdo do arquivo (até 5 caminhos). Leia cada um (Read, sem limite de linhas incomum — são arquivos de produção normais) e guarde um resumo de 1–2 frases por arquivo: o que ele escreve no mesmo campo e sob qual condição. Esse resumo (não o conteúdo inteiro) é o que entra no prompt do Sênior no Passo 5.
+
+Se vazio, ou `STACK` não inclui Laravel → `ARQUIVOS_ADJACENTES` vazio, omita o bloco correspondente no prompt do Sênior.
+
+> **Isto é uma pista, não uma expansão do escopo revisado.** `ARQUIVOS_ADJACENTES` nunca entra em `LISTA_ARQUIVOS_TODOS`, nunca é citado como "achado neste arquivo" fora do contexto de `SR-CTX-04`/`SR-CORR-12`, e nunca conta para `ARQUIVOS_COUNT`/`LINHAS_DIFF`. O Sênior lê esses arquivos só para avaliar a interação com o diff — não os revisa por conta própria (não vira achado "código pré-existente ruim" nesses arquivos).
+
 **Detectar se o diff toca interface** — decide se a evidência de navegação real será exigida (Passo 4.5). A partir de `LISTA_ARQUIVOS_TODOS`, `UI_TOCADA=true` se houver **qualquer**:
 - arquivo de template/view (`.blade.php`, `.html`, `.vue`, `.svelte`, `.jsx`, `.tsx`, `.twig`, `.erb`)
 - arquivo de estilo ou asset de front (`.css`, `.scss`, `.js`, `.ts` fora de teste)
@@ -328,6 +362,10 @@ O diff completo está gravado em: {DIFF_FILE} — leia esse arquivo como primeir
 Arquivos alterados ({ARQUIVOS_COUNT} arquivos, {LINHAS_DIFF} linhas):
 {LISTA_ARQUIVOS_TODOS}
 [Se DIFF_GRANDE: "Diff grande — priorize arquivos de lógica de negócio (controllers/services/models), depois migrations/rotas, depois views; liste o que não analisou em 'Etapas não concluídas' e marque Cobertura: PARCIAL."]
+
+[Se ARQUIVOS_ADJACENTES não vazio: "## Escritores irmãos fora do diff (pista para SR-CTX-04/SR-CORR-12)
+Estes arquivos NÃO fazem parte do diff e não devem ser revisados por conta própria (não vire achado 'código pré-existente ruim' aqui) — leia-os só para checar se escrevem o mesmo campo de estado/status que este diff grava, e se há conflito/sobrescrita entre os dois:
+{ARQUIVOS_ADJACENTES}"]
 
 Se o stack incluir Ionic/Angular: verificar também tipagem TypeScript estrita, ausência de `any`, componentes standalone.
 
@@ -658,3 +696,4 @@ Nunca executar INSERT, UPDATE, DELETE ou DDL.
 | Consolidador (opcional) | `consolidador-review.md` + Passo 6 (Opção B) | Mantenha genérico; só ative quando o diff for grande ou o determinismo inline estiver ameaçado |
 | Local do baseline | Passo 3 — `BASELINE_DIR` | Um caminho por branch que persista entre rodadas; recomende `.gitignore` desse diretório |
 | Comando de banco | overlay → seção "Acesso ao banco" | Adapte se não usar MySQL/Laravel; sempre read-only |
+| Detecção de escritores irmãos (Passo 1) | comando → bloco "Detectar arquivos adjacentes" | Termos de campo de estado/status (`status\|situacao\|situação`) e chamadas de escrita (`->save(`, `->update(`, `::create(`, `->fill(`) são vocabulário Eloquent/Laravel — troque pelos equivalentes do seu ORM/stack, ou desative o bloco (condicione a `STACK` que nunca bate) se seu projeto não tem esse padrão de risco |
